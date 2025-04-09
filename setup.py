@@ -2,10 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="einstein-models",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
+    package_data={
+        'einstein_models': ['data/*.py', 'constant/*.py', 'models/*.py', 'rest/*.py'],
+    },
     install_requires=[
         "requests",
+        "python-dotenv",
     ],
     author="Amir Khan",
     author_email="amir.khan@salesforce.com",

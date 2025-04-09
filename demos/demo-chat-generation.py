@@ -1,20 +1,31 @@
 from einstein_models import ModelsAI, Messages
 from einstein_models.models.models import get_models
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get credentials from environment variables
+sf_org = os.getenv('SF_ORG')
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+
 # Initialize the ModelsAI class
 sfModelsAI = ModelsAI()
 
-# Authenticate with your Salesforce credentials
-sfOrg = "copilot-425-689-demo.my.salesforce.com"
-clientId = "3MVG9slge.VWGNwkP7YMZBclFZ9tFroHKux8jXQAgZN89DeQO4PXtFW5qj2zYkgbVPRWIsmzSxIihEKqElieT"
-clientSecret = "BBEB656BEFE0E73EAA33A0F2B2E80BADB1CEB8DCD96FF80BABF9632D0DF3AD5C"
-
 print("Authenticating...")
-auth_response = sfModelsAI.authenticate(sfOrg, clientId, clientSecret)
+auth_response = sfModelsAI.authenticate(
+    salesforce_domain=sf_org,
+    client_id=client_id,
+    client_secret=client_secret
+)
 #print(f"Authentication response: {auth_response}")
 
 # Get the Model enum
 Model = get_models()
+
 
 def print_chat_response_details(response, example_num):
     print(f"\n=== Example {example_num} Chat Response Details ===")
