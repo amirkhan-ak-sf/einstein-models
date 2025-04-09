@@ -22,8 +22,10 @@ pip install einstein-models
 ```python
 from einstein_models import ModelsAI
 
-# Get model list
+# Get model/embed_model list
 from einstein_models.models.models import get_models
+from einstein_models.models.embedding_models import EmbeddingModel
+
 
 # Initialize the client
 sfModelsAI = ModelsAI()
@@ -63,6 +65,14 @@ response = sfModelsAI.chat_generate(
     messages=messages
 )
 
+# Generate embeddings using OpenAI Ada 002 model
+response = client.generate_embedding(
+    model=EmbeddingModel.OPENAI_ADA_002.value,
+    input_texts=[
+    "Every day, once a day, give yourself a present",
+    "The best way to predict the future is to create it"
+]
+)
 
 
 ```
