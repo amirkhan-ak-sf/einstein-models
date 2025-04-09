@@ -16,6 +16,7 @@ auth_response = sfModelsAI.authenticate(sfOrg, clientId, clientSecret)
 # Get the Model enum
 Model = get_models()
 
+
 def print_chat_response_details(response, example_num):
     print(f"\n=== Example {example_num} Chat Response Details ===")
     print(f"Response ID: {response.id}")
