@@ -13,8 +13,14 @@ pip install einstein-models
 ```python
 from einstein_models import ModelsAI
 
+# Get model list
+from einstein_models.models.models import get_models
+
 # Initialize the client
 sfModelsAI = ModelsAI()
+
+# Save available models
+Models = get_models()
 
 # Authenticate
 sfModelsAI.authenticate(
@@ -31,6 +37,15 @@ response = sfModelsAI.generate(
     locale="en_US"
 )
 
+# Generate content with model list
+response = sfModelsAI.generate(
+    model=Model.OPENAI_GPT_4_OMNI.value,
+    prompt="What is the capital of Switzerland?",
+    probability=0.8,
+    locale="en_US"
+)
+
+
 # Chat generation
 messages = Messages()
 messages.add_user_message("What is the capital of Switzerland?")
@@ -38,6 +53,9 @@ response = sfModelsAI.chat_generate(
     model="sfdc_ai__DefaultOpenAIGPT4Omni",
     messages=messages
 )
+
+
+
 ```
 
 ## License
