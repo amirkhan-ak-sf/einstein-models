@@ -89,8 +89,6 @@ model_id = "sfdc_ai__DefaultOpenAIGPT4"
 response = sfModelsAI.generate(
     model=model_id,
     prompt="Create a detailed analysis of the impact of AI on healthcare",
-    temperature=0.7,
-    max_tokens=100
 )
 
 print(response.generation.generatedText)
@@ -103,8 +101,7 @@ model_id = "sfdc_ai__DefaultOpenAIGPT35Turbo"
 response = sfModelsAI.generate(
     model=model_id,
     prompt="Write a short story about a robot learning to paint",
-    temperature=0.7,
-    max_tokens=100
+    probability=0.8,
 )
 print(response.generation.generatedText)
 print_response_details(response, 3)
