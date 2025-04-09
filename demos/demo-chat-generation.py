@@ -101,7 +101,7 @@ messages.add_assistant_message("Quantum superposition is when a quantum system e
 messages.add_user_message("How does this differ from classical computing?")
 
 response = sfModelsAI.chat_generate(
-    model=Model.OPENAI_GPT_4_OMNI.value,
+    model=Model.OPENAI_GPT_4_OMNI_MINI.value,
     messages=messages
 )
 print_chat_response_details(response, 2)
@@ -115,7 +115,7 @@ messages.add_assistant_message("Once upon a time, there was a robot named ArtBot
 messages.add_user_message("Continue the story, focusing on ArtBot's first painting exhibition.")
 
 response = sfModelsAI.chat_generate(
-    model=Model.OPENAI_GPT_4_OMNI.value,
+    model=Model.OPENAI_GPT_35_TURBO.value,
     messages=messages
 )
 print_chat_response_details(response, 3) 
