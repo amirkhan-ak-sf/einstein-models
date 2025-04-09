@@ -2,8 +2,7 @@
 
 A Python SDK for interacting with Salesforce Einstein Models API.
 
-## Prerequisites
-### Retrieving Salesforce Credentials
+## Retrieving Salesforce Credentials
 
 Einstein AI can be easily configured by providing the Salesforce external app or connected app client credentials.
 
