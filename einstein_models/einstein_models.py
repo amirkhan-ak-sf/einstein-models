@@ -24,12 +24,14 @@ from .constant.constants import (
     CONTENT_TYPE_JSON,
     PAYLOAD_TEMPLATE
 )
-from .models.models import get_models, get_model_ids, is_valid_model
+from .models.models import get_models, is_valid_model
+from .models.embedding_models import get_embed_models, is_valid_embed_model, EmbeddingModel
 from .rest.chat_generation import chat_generate
 from .data.chat_messages import Messages
 from dotenv import load_dotenv
 from .rest.authenticate import authenticate as authenticate_user
 from .rest.generate import generate as generate_content
+from .rest.generate_embedding import EmbeddingGenerator
 
 __all__ = ['ModelsAI', 'Messages']
 
@@ -96,5 +98,22 @@ class ModelsAI:
             tags=tags
         )
 
+    def generate_embedding(self, model, input_texts):
+        if not self._access_token:
+            raise Exception("Not authenticated. Call authenticate() first.")
+        
+        if not is_valid_embed_model(model):
+            valid_models = "\n".join(f"- {m.name} ({m.value})" for m in self.list_embed_models())
+            raise Exception(f"Invalid model ID: {model}\n\nAvailable models:\n{valid_models}")
+
+        generator = EmbeddingGenerator(access_token=self._access_token)
+        # Convert string model to enum if needed
+        if isinstance(model, str):
+            model = EmbeddingModel(model)
+        return generator.generate_embedding(model=model, input_texts=input_texts)
+
     def list_models(self):
         return get_models()
+    
+    def list_embed_models(self):
+        return get_embed_models()

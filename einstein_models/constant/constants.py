@@ -12,6 +12,10 @@ MODEL_GENERATIONS_URL = f"{BASE_URL}/models/{{model}}/generations"
 # Chat Generation URL
 CHAT_GENERATION_URL = f"{BASE_URL}/models/{{model}}/chat-generations"
 
+# Chat Generation URL
+EMBEDDING_URL = f"{BASE_URL}/models/{{model}}/embeddings"
+
+
 # OAuth Constants
 GRANT_TYPE = "client_credentials"
 CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"

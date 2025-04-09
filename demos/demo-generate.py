@@ -85,7 +85,7 @@ def print_response_details(response, example_num):
 
 # Example 2: Using GPT-4 Turbo
 print("\nGenerating with GPT-4 Turbo...")
-model_id = "sfdc_ai__DefaultOpenAIGPT4"
+model_id = Model.OPENAI_GPT_4_OMNI_MINI.value
 response = sfModelsAI.generate(
     model=model_id,
     prompt="Create a detailed analysis of the impact of AI on healthcare",

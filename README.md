@@ -2,6 +2,16 @@
 
 A Python SDK for interacting with Salesforce Einstein Models API.
 
+## Prerequisites
+### Retrieving Salesforce Credentials
+
+Einstein AI can be easily configured by providing the Salesforce external app or connected app client credentials.
+
+In order to create client credentials, follow these instructions (Step 1 only): [Salesforce Developer Guide](https://developer.salesforce.com/docs/einstein/genai/guide/access-models-api-with-rest.html)
+
+Once the external app or connected app is created, get the client credentials for consumer ID and secret. You will also need your Salesforce organization name, which you can extract from the Salesforce URL.
+
+
 ## Installation
 
 ```bash
