@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Union
 from ..data.definitions import (
     CategoryScore,
     ScanToxicity,
@@ -16,6 +16,7 @@ from ..constant.constants import (
     MODEL_GENERATIONS_URL,
     DEFAULT_LOCALE,
     HEADERS,
+    EINSTEIN_HEADERS,
     LOCALIZATION_TEMPLATE,
     PAYLOAD_TEMPLATE
 )
@@ -88,23 +89,25 @@ def _parse_response(response_data: Dict[str, Any]) -> GenerationResponse:
     return GenerationResponse(
         id=response_data.get("id", ""),
         generation=generation,
-        moreGenerations=response_data.get("moreGenerations"),
-        prompt=response_data.get("prompt"),
+        moreGenerations=response_data.get("moreGenerations", []),
+        prompt=response_data.get("prompt", ""),
         parameters=parameters
     )
 
-def generate(access_token: str,
-            model: str, 
-            prompt: str, 
-            probability: float = None, 
-            locale: str = None,
-            **kwargs) -> GenerationResponse:
+def generate(
+    access_token: str,
+    model: str,
+    prompt: str,
+    probability: float = None,
+    locale: str = None,
+    **kwargs
+) -> GenerationResponse:
     """
     Generate content using Salesforce Einstein Models.
     
     Args:
         access_token: The OAuth access token
-        model: The model name to use for generation
+        model: The model ID to use for generation
         prompt: The input prompt to generate from
         probability: Optional probability parameter (default is used if not provided)
         locale: Optional locale parameter (e.g., 'en_US', default is used if not provided)
@@ -112,42 +115,58 @@ def generate(access_token: str,
         
     Returns:
         GenerationResponse object containing the structured response
+        
+    Raises:
+        Exception: If the request fails
     """
     if not access_token:
         raise Exception("Access token is required")
     
+    if not model:
+        raise Exception("Model ID is required")
+    
+    if not prompt:
+        raise Exception("Prompt is required")
+    
+    # Validate the model ID format
+    if not model.startswith("sfdc_"):
+        raise Exception(f"Invalid model ID format: {model}. Model ID should start with 'einstein-', 'openai-', or 'anthropic-'")
+    
     url = MODEL_GENERATIONS_URL.format(model=model)
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        **HEADERS,
+        **EINSTEIN_HEADERS
+    }
     
-    headers = HEADERS.copy()
-    headers["Authorization"] = f"Bearer {access_token}"
+    # Build the localization object
+    localization = {
+        "defaultLocale": locale or "en_US",
+        "expectedLocales": [locale or "en_US"],
+        "inputLocales": [{"probability": probability or 0.8, "locale": locale or "en_US"}]
+    }
     
-    # Default locale if not provided
-    locale = locale or DEFAULT_LOCALE
-    
-    # Create payload from template
-    payload = PAYLOAD_TEMPLATE.copy()
-    payload["prompt"] = prompt
-    
-    # Update localization
-    payload["localization"] = LOCALIZATION_TEMPLATE.copy()
-    payload["localization"]["defaultLocale"] = locale
-    payload["localization"]["expectedLocales"] = [locale]
-    
-    # Add probability if provided
-    if probability is not None:
-        payload["localization"]["inputLocales"] = [
-            {"probability": probability, "locale": locale}
-        ]
+    payload = {
+        "localization": localization,
+        "prompt": prompt,
+        "tags": {}
+    }
     
     # Add any additional parameters
-    for key, value in kwargs.items():
-        if key not in payload:
-            payload[key] = value
+    payload.update(kwargs)
+    
     
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        response_data = response.json()
-        return _parse_response(response_data)
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+
+        
+        if response.status_code == 200:
+            return _parse_response(response.json())
+        elif response.status_code == 403:
+            raise Exception(f"Access forbidden. Please check your permissions and model access. Model: {model}")
+        elif response.status_code == 404:
+            raise Exception(f"Model not found: {model}")
+        else:
+            raise Exception(f"Generation failed with status {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
-        raise Exception(f"Generation request failed: {str(e)}") 
+        raise Exception(f"Request failed: {str(e)}") 

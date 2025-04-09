@@ -2,8 +2,10 @@
 Constants used throughout the Einstein Models SDK.
 """
 
-# Base URLs
+# Base URL for the Einstein Models API
 BASE_URL = "https://api.salesforce.com/einstein/platform/v1"
+
+# Base URLs
 OAUTH_TOKEN_URL = "https://{salesforceDomain}/services/oauth2/token"
 MODEL_GENERATIONS_URL = f"{BASE_URL}/models/{{model}}/generations"
 
@@ -18,11 +20,16 @@ CONTENT_TYPE_JSON = "application/json"
 # Default Values
 DEFAULT_LOCALE = "en_US"
 
-# Headers
+# Default headers for API requests
 HEADERS = {
-    "Content-Type": CONTENT_TYPE_JSON,
-    "x-sfdc-app-context": "EinsteinGPT",
-    "x-client-feature-id": "ai-platform-models-connected-app"
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+}
+
+# Request headers for operations
+EINSTEIN_HEADERS = {
+    "x-client-feature-id": "ai-platform-models-connected-app",
+    "x-sfdc-app-context":"EinsteinGPT",
 }
 
 # Payload Templates

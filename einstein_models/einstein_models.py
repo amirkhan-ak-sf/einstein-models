@@ -15,13 +15,33 @@ from .data.definitions import (
 from .data.chat_response import ChatGenerationResponse
 from .constant.constants import (
     BASE_URL,
-    HEADERS
+    HEADERS,
+    OAUTH_TOKEN_URL,
+    MODEL_GENERATIONS_URL,
+    CHAT_GENERATION_URL,
+    GRANT_TYPE,
+    CONTENT_TYPE_FORM,
+    CONTENT_TYPE_JSON,
+    PAYLOAD_TEMPLATE
 )
-from .rest.generate import generate as generate_content
-from .rest.authenticate import authenticate as authenticate_user
-from .models.models import get_models, is_valid_model
+from .models.models import get_models, get_model_ids, is_valid_model
 from .rest.chat_generation import chat_generate
 from .data.chat_messages import Messages
+from dotenv import load_dotenv
+from .rest.authenticate import authenticate as authenticate_user
+from .rest.generate import generate as generate_content
+
+__all__ = ['ModelsAI', 'Messages']
+
+class Messages:
+    def __init__(self):
+        self.messages = []
+
+    def add_message(self, role, content):
+        self.messages.append({"role": role, "content": content})
+
+    def get_messages(self):
+        return self.messages
 
 class ModelsAI:
     """
@@ -32,71 +52,29 @@ class ModelsAI:
     """
     
     def __init__(self):
-        self.accessToken = None
-        self.tokenType = None
-        self.salesforceDomain = None
-        self.baseUrl = BASE_URL
+        self._access_token = None
+        self._token_type = None
+        self._salesforce_domain = None
+        self._base_url = BASE_URL
+        load_dotenv()
     
-    def authenticate(self, salesforceDomain: str, clientId: str, clientSecret: str) -> Dict[str, Any]:
-        """
-        Authenticate against the Salesforce OAuth2 endpoint.
-        
-        Args:
-            salesforceDomain: The Salesforce domain (e.g., 'myorg.my.salesforce.com')
-            clientId: The OAuth client ID (consumer key)
-            clientSecret: The OAuth client secret (consumer secret)
-            
-        Returns:
-            Dict containing the authentication response
-        """
-        self.salesforceDomain = salesforceDomain
-        
-        auth_data = authenticate_user(salesforceDomain, clientId, clientSecret)
-        self.accessToken = auth_data.get("access_token")
-        self.tokenType = auth_data.get("token_type", "Bearer")
-        
+    def authenticate(self, salesforce_domain, client_id, client_secret):
+        self._salesforce_domain = salesforce_domain
+        auth_data = authenticate_user(salesforce_domain, client_id, client_secret)
+        self._access_token = auth_data.get("access_token")
+        self._token_type = auth_data.get("token_type", "Bearer")
         return auth_data
     
-    def list_models(self) -> List[Dict[str, str]]:
-        """
-        Get a list of available models with their details.
-        
-        Returns:
-            List of dictionaries containing model name, ID, and description
-        """
-        return get_models()
-    
-    def generate(self, 
-                model: str, 
-                prompt: str, 
-                probability: float = None, 
-                locale: str = None,
-                **kwargs) -> GenerationResponse:
-        """
-        Generate content using Salesforce Einstein Models.
-        
-        Args:
-            model: The model name to use for generation
-            prompt: The input prompt to generate from
-            probability: Optional probability parameter (default is used if not provided)
-            locale: Optional locale parameter (e.g., 'en_US', default is used if not provided)
-            **kwargs: Additional parameters to pass to the API
-            
-        Returns:
-            GenerationResponse object containing the structured response
-            
-        Raises:
-            Exception: If the model ID is not valid or if not authenticated
-        """
-        if not self.accessToken:
+    def generate(self, model, prompt, probability=None, locale=None, **kwargs):
+        if not self._access_token:
             raise Exception("Not authenticated. Call authenticate() first.")
         
         if not is_valid_model(model):
-            valid_models = "\n".join(f"- {m['name']} ({m['id']})" for m in self.list_models())
+            valid_models = "\n".join(f"- {m.name} ({m.value})" for m in self.list_models())
             raise Exception(f"Invalid model ID: {model}\n\nAvailable models:\n{valid_models}")
         
         return generate_content(
-            access_token=self.accessToken,
+            access_token=self._access_token,
             model=model,
             prompt=prompt,
             probability=probability,
@@ -104,51 +82,12 @@ class ModelsAI:
             **kwargs
         )
     
-    def _get_headers(self) -> Dict[str, str]:
-        """
-        Get the headers for API requests.
-        
-        Returns:
-            Dict containing the request headers
-        """
-        if not self.accessToken:
-            raise Exception("Not authenticated. Call authenticate() first.")
-            
-        headers = HEADERS.copy()
-        headers["Authorization"] = f"Bearer {self.accessToken}"
-        return headers
-    
-    def chat_generate(
-        self,
-        model: str,
-        messages: Messages,
-        default_locale: str = "en_US",
-        input_locales: Optional[List[Dict[str, Any]]] = None,
-        expected_locales: Optional[List[str]] = None,
-        tags: Optional[Dict[str, Any]] = None
-    ) -> ChatGenerationResponse:
-        """
-        Generate chat responses using Salesforce Einstein Models.
-        
-        Args:
-            model: The model ID to use for generation
-            messages: The Messages object containing the chat history
-            default_locale: The default locale for the chat (default: "en_US")
-            input_locales: List of input locales with probabilities
-            expected_locales: List of expected output locales
-            tags: Optional tags for the generation
-            
-        Returns:
-            ChatGenerationResponse object containing the structured response
-            
-        Raises:
-            Exception: If not authenticated or if the request fails
-        """
-        if not self.accessToken:
+    def chat_generate(self, model, messages, default_locale="en_US", input_locales=None, expected_locales=None, tags=None):
+        if not self._access_token:
             raise Exception("Not authenticated. Call authenticate() first.")
         
         return chat_generate(
-            access_token=self.accessToken,
+            access_token=self._access_token,
             model=model,
             messages=messages,
             default_locale=default_locale,
@@ -156,3 +95,6 @@ class ModelsAI:
             expected_locales=expected_locales,
             tags=tags
         )
+
+    def list_models(self):
+        return get_models()

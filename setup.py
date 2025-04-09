@@ -2,13 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="einstein-models",
-    version="0.1.1",
+    version="0.1.7",
     packages=find_packages(),
     package_data={
-        'einstein_models': ['data/*.py'],
-        'einstein_models.models': ['models/*.py'],
-        'einstein_models.rest': ['rest/*.py'],
-
+        'einstein_models': ['data/*.py', 'constant/*.py', 'models/*.py', 'rest/*.py'],
     },
     install_requires=[
         "requests",

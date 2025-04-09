@@ -1,6 +1,6 @@
 import requests
 from typing import Dict, Any, Optional, List
-from ..constant.constants import CHAT_GENERATION_URL, HEADERS
+from ..constant.constants import CHAT_GENERATION_URL, HEADERS, EINSTEIN_HEADERS
 from ..data.chat_messages import Messages
 from ..data.definitions import ContentQuality, ScanToxicity, CategoryScore
 from ..data.chat_response import (
@@ -60,6 +60,7 @@ def chat_generate(
     
     # Prepare headers
     headers = HEADERS.copy()
+    headers = EINSTEIN_HEADERS
     headers["Authorization"] = f"Bearer {access_token}"
     
     # Make the API request
