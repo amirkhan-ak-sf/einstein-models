@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="einstein-models",
-    version="0.2.0",
+    version="0.2.5",
     packages=find_packages(),
     package_data={
         'einstein_models': ['data/*.py', 'constant/*.py', 'models/*.py', 'rest/*.py'],
